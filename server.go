@@ -97,7 +97,7 @@ func (s *Server) Run() error {
 		return nil
 	}))
 
-	router.HandleFunc("/podcast/{program}.{ext:png|jpg}", s.errorHandler(func(w http.ResponseWriter, r *http.Request) error {
+	router.HandleFunc("/podcast/{program}.{ext:png|jpg|jpeg|gif|bmp}", s.errorHandler(func(w http.ResponseWriter, r *http.Request) error {
 		dir := mux.Vars(r)["program"]
 		ext := mux.Vars(r)["ext"]
 
