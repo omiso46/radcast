@@ -207,14 +207,16 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 
 	var item PodcastItem
 
-	item.Title = fmt.Sprintf("%s (%s)", prog.Title, ft)
+	// item.Title = fmt.Sprintf("%s (%s)", prog.Title, ft)
+	item.Title = prog.Title
 	item.ITunesAuthor = prog.Pfm
 	item.ITunesSummary = prog.Info
 
 	item.Enclosure.URL = baseURL.ResolveReference(u).String()
 	item.Enclosure.Type = "audio/aac"
 	item.Enclosure.Length = int(m4aStat.Size())
-	item.PubDate = PubDate{m4aStat.ModTime()}
+	// item.PubDate = PubDate{m4aStat.ModTime()}
+	item.PubDate = PubDate{ft}
 
 	item.Description = prog.Desc
 	item.Category = "radiko"
