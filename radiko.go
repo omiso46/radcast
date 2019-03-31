@@ -117,7 +117,8 @@ func (r *RadikoResult) Save(dir string) error {
 		return err
 	}
 
-	r.Log("saved m4a:", m4aPath, " xml:", xmlPath, " img:", imgPath)
+	// r.Log("saved m4a:", m4aPath, " xml:", xmlPath, " img:", imgPath)
+	r.Log("saved path:", programDir)
 
 	return nil
 }
