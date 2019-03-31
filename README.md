@@ -7,6 +7,7 @@ radicastを少し、自分好みに改造しました
 * 05時開始番組が録音できないときがある
 * チャンネルのアイコン設定
 * 番組のアイコン取得
+* 他
 
 ORIGINAL By https://github.com/soh335/radicast
 
