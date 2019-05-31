@@ -152,8 +152,7 @@ func (s *Server) rss(baseURL *url.URL) (*PodcastRss, error) {
 		items = append(items, *item)
 	}
 
-	//	sort.Sort(sort.Reverse(items))
-	sort.Sort(items)
+	sort.Sort(sort.Reverse(items))
 
 	rss := NewPodcastRss()
 
