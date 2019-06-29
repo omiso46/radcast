@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"unicode/utf8"
 
 	"github.com/gorilla/mux"
 )
@@ -210,7 +211,12 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 	// item.Title = fmt.Sprintf("%s (%s)", prog.Title, ft)
 	item.Title = prog.Title
 	item.ITunesAuthor = prog.Pfm
-	item.ITunesSummary = prog.Info
+	// item.ITunesSummary = prog.Info
+	if utf8.RuneCountInString(prog.Info) == 0 {
+		item.ITunesSummary = prog.Desc
+	} else {
+		item.ITunesSummary = prog.Info
+	}
 
 	item.Enclosure.URL = baseURL.ResolveReference(u).String()
 	item.Enclosure.Type = "audio/aac"
@@ -218,7 +224,7 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 	// item.PubDate = PubDate{m4aStat.ModTime()}
 	item.PubDate = PubDate{ft}
 
-	item.Description = prog.Desc
+	// item.Description = prog.Desc
 	item.Category = "radiko"
 
 	ext := filepath.Ext(prog.Img)
