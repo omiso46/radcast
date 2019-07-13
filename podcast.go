@@ -36,7 +36,8 @@ type PodcastChannel struct {
 	ITunesCategory struct {
 		Text string `xml:"text,attr,omitempty"`
 	} `xml:"itunes:category,omitempty"`
-	Items PodcastItems
+	PubDate PubDate `xml:"pubDate,omitempty"`
+	Items   PodcastItems
 }
 
 type PodcastItem struct {

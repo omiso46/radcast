@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"time"
 	"unicode/utf8"
 
 	"github.com/gorilla/mux"
@@ -163,6 +164,8 @@ func (s *Server) rss(baseURL *url.URL) (*PodcastRss, error) {
 
 	channel.ITunesCategory.Text = "radiko"
 	channel.ITunesImage.Href = baseURL.String() + "/radcast.png"
+
+	channel.PubDate = PubDate{time.Now()}
 
 	rss.Channel = channel
 
