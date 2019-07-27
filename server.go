@@ -207,7 +207,7 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 		return nil, err
 	}
 
-	ft, _ := prog.FtTime()
+	// ft, _ := prog.FtTime()
 
 	var item PodcastItem
 
@@ -224,8 +224,8 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 	item.Enclosure.URL = baseURL.ResolveReference(u).String()
 	item.Enclosure.Type = "audio/aac"
 	item.Enclosure.Length = int(m4aStat.Size())
-	// item.PubDate = PubDate{m4aStat.ModTime()}
-	item.PubDate = PubDate{ft}
+	item.PubDate = PubDate{m4aStat.ModTime()}
+	// item.PubDate = PubDate{ft}
 
 	// item.Description = prog.Desc
 	item.Category = "radiko"
