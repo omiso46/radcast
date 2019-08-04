@@ -160,12 +160,31 @@ func (s *Server) rss(baseURL *url.URL) (*PodcastRss, error) {
 
 	channel := PodcastChannel{}
 	channel.Title = s.Title
-	channel.Items = items
+	channel.Link = "http://radiko.jp"
+	channel.Image.URL = baseURL.String() + "/radcast.png"
+	channel.Image.Title = s.Title
+	channel.Image.Link = "http://radiko.jp/"
+	channel.Description = "radiko"
+	channel.Language = "ja-JP"
+	channel.Copyright = "copyright 2019"
 
-	channel.ITunesCategory.Text = "radiko"
+	channel.AtomLink.Href = "http://podcasts.thepolyglotdeveloper.com/podcast.xml"
+	channel.AtomLink.Rel = "self"
+	channel.AtomLink.Type = "application/rss+xml"
+	channel.LastBuildDate = PubDate{time.Now()}
+
+	channel.ITunesAuthor = "radiko"
+	channel.ITunesSummary = "radiko"
+	channel.ITunesSubtitle = "radiko"
+	channel.ITunesOwner.ITunesName = "radiko"
+	channel.ITunesOwner.ITunesEmail = "radiko"
+	channel.ITunesExplict = "No"
+	channel.ITunesKeywords = "radiko,radio"
 	channel.ITunesImage.Href = baseURL.String() + "/radcast.png"
-
+	channel.ITunesCategory.Text = "radio"
 	channel.PubDate = PubDate{time.Now()}
+
+	channel.Items = items
 
 	rss.Channel = channel
 
@@ -213,22 +232,25 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 
 	// item.Title = fmt.Sprintf("%s (%s)", prog.Title, ft)
 	item.Title = prog.Title
+	item.Link = baseURL.ResolveReference(u).String()
+	// item.PubDate = PubDate{ft}
+	item.PubDate = PubDate{m4aStat.ModTime()}
 	item.ITunesAuthor = prog.Pfm
-	// item.ITunesSummary = prog.Info
+
+	// item.Description = prog.Desc
 	if utf8.RuneCountInString(prog.Info) == 0 {
-		item.ITunesSummary = prog.Desc
+		item.Description = prog.Desc
 	} else {
-		item.ITunesSummary = prog.Info
+		item.Description = prog.Info
 	}
 
 	item.Enclosure.URL = baseURL.ResolveReference(u).String()
-	item.Enclosure.Type = "audio/aac"
 	item.Enclosure.Length = int(m4aStat.Size())
-	item.PubDate = PubDate{m4aStat.ModTime()}
-	// item.PubDate = PubDate{ft}
+	item.Enclosure.Type = "audio/aac"
 
-	// item.Description = prog.Desc
-	item.Category = "radiko"
+	item.GUID = baseURL.ResolveReference(u).String()
+	// item.ITunesDuration
+	item.ITunesSummary = item.Description
 
 	ext := filepath.Ext(prog.Img)
 	iu, err := url.Parse("/podcast/" + dir + ext)
@@ -236,6 +258,9 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 		return nil, err
 	}
 	item.ITunesImage.Href = baseURL.ResolveReference(iu).String()
+
+	item.ITunesKeywords = "radiko,radio"
+	item.ITunesExplict = "No"
 
 	return &item, nil
 }
