@@ -43,12 +43,15 @@ type PodcastChannel struct {
 		ITunesName  string `xml:"itunes:name,omitempty"`
 		ITunesEmail string `xml:"itunes:email,omitempty"`
 	} `xml:"itunes:owner,omitempty"`
-	ITunesExplict  string `xml:"itunes:explict,omitempty"`
+	ITunesExplicit string `xml:"itunes:explicit,omitempty"`
 	ITunesKeywords string `xml:"itunes:keywords,omitempty"`
 	ITunesImage    struct {
 		Href string `xml:"href,attr,omitempty"`
 	} `xml:"itunes:image,omitempty"`
-	ITunesCategory struct {
+	RawvoiceRating    string `xml:"rawvoice:rating,omitempty"`
+	RawvoiceLocation  string `xml:"rawvoice:location,omitempty"`
+	RawvoiceFrequency string `xml:"rawvoice:frequency,omitempty"`
+	ITunesCategory    struct {
 		Text string `xml:"text,attr,omitempty"`
 	} `xml:"itunes:category,omitempty"`
 	PubDate PubDate `xml:"pubDate,omitempty"`
@@ -75,7 +78,7 @@ type PodcastItem struct {
 		Href string `xml:"href,attr,omitempty"`
 	} `xml:"itunes:image,omitempty"`
 	ITunesKeywords string `xml:"itunes:keywords,omitempty"`
-	ITunesExplict  string `xml:"itunes:explict,omitempty"`
+	ITunesExplicit string `xml:"itunes:explicit,omitempty"`
 }
 
 type PodcastItems []PodcastItem
