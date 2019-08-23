@@ -295,10 +295,11 @@ func (s *Server) Log(v ...interface{}) {
 
 func fmtDuration(sec string) string {
 	d, _ := time.ParseDuration(sec + "s")
-	d = d.Round(time.Minute)
 	h := d / time.Hour
 	d -= h * time.Hour
 	m := d / time.Minute
+	d -= m * time.Minute
+	s := d / time.Second
 
-	return fmt.Sprintf("%02d:%02d", h, m)
+	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
 }
