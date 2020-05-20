@@ -249,7 +249,7 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 	item.Enclosure.Length = int(m4aStat.Size())
 	item.Enclosure.Type = "audio/aac"
 
-	item.GUID = baseURL.ResolveReference(u).String()
+	item.GUID = dir
 	item.ITunesDuration = fmtDuration(prog.Dur)
 	item.ITunesSummary = item.Description
 
