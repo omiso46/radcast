@@ -77,7 +77,7 @@ func (r *RadikoProg) Duration() (int64, error) {
 }
 
 type RadikoResult struct {
-	M4aPath string
+	MedPath string
 	Prog    *RadikoProg
 	Station string
 }
@@ -89,17 +89,17 @@ func (r *RadikoResult) Save(dir string) error {
 		return err
 	}
 
-	m4aPath := filepath.Join(programDir, "podcast.m4a")
+	medPath := filepath.Join(programDir, "podcast.mp3")
 	xmlPath := filepath.Join(programDir, "podcast.xml")
 
 	imgName := "podcast" + filepath.Ext(r.Prog.Img)
 	imgPath := filepath.Join(programDir, imgName)
 
-	if err := RenameOrCopy(r.M4aPath, m4aPath); err != nil {
+	if err := RenameOrCopy(r.MedPath, medPath); err != nil {
 		return err
 	}
 
-	if err := RenameOrCopy(filepath.Dir(r.M4aPath)+"/"+imgName, imgPath); err != nil {
+	if err := RenameOrCopy(filepath.Dir(r.MedPath)+"/"+imgName, imgPath); err != nil {
 		return err
 	}
 
@@ -117,7 +117,7 @@ func (r *RadikoResult) Save(dir string) error {
 		return err
 	}
 
-	// r.Log("saved m4a:", m4aPath, " xml:", xmlPath, " img:", imgPath)
+	// r.Log("saved media:", medPath, " xml:", xmlPath, " img:", imgPath)
 	r.Log("saved path:", programDir)
 
 	return nil
@@ -129,6 +129,7 @@ func (r *RadikoResult) Log(v ...interface{}) {
 
 type Radiko struct {
 	Station   string
+	Bitrate   string
 	Buffer    int64
 	Converter string
 	TempDir   string
@@ -164,9 +165,9 @@ func (r *Radiko) run(ctx context.Context) []*RadikoResult {
 	results := []*RadikoResult{}
 
 	record := func() error {
-		output := filepath.Join(r.TempDir, fmt.Sprintf("radiko_%d.m4a", retry))
+		output := filepath.Join(r.TempDir, fmt.Sprintf("radiko_%d.mp3", retry))
 
-		ret, err := r.record(ctx, output, r.Station, r.Buffer)
+		ret, err := r.record(ctx, output, r.Station, r.Bitrate, r.Buffer)
 
 		if ret != nil {
 			results = append(results, ret)
@@ -220,11 +221,11 @@ func (r *Radiko) run(ctx context.Context) []*RadikoResult {
 
 // http://superuser.com/questions/314239/how-to-join-merge-many-mp3-files
 func (r *Radiko) ConcatOutput(dir string, results []*RadikoResult) (*RadikoResult, error) {
-	output := filepath.Join(dir, "radiko_concat.m4a")
+	output := filepath.Join(dir, "radiko_concat.mp3")
 
 	outputs := []string{}
 	for _, result := range results {
-		outputs = append(outputs, result.M4aPath)
+		outputs = append(outputs, result.MedPath)
 	}
 
 	args := []string{
@@ -243,7 +244,7 @@ func (r *Radiko) ConcatOutput(dir string, results []*RadikoResult) (*RadikoResul
 	}
 
 	return &RadikoResult{
-		M4aPath: output,
+		MedPath: output,
 		Station: results[0].Station,
 		Prog:    results[0].Prog,
 	}, nil
@@ -348,7 +349,7 @@ func (r *Radiko) nowProgram(ctx context.Context, area string, station string) (*
 	return nil, errors.New("not found program")
 }
 
-func (r *Radiko) record(ctx context.Context, output string, station string, buffer int64) (*RadikoResult, error) {
+func (r *Radiko) record(ctx context.Context, output string, station string, bitrate string, buffer int64) (*RadikoResult, error) {
 
 	authtoken, area, err := r.auth(ctx)
 
@@ -387,14 +388,14 @@ func (r *Radiko) record(ctx context.Context, output string, station string, buff
 
 	duration += buffer
 
-	err = r.download(ctx, authtoken, station, fmt.Sprint(duration), output)
+	err = r.download(ctx, authtoken, station, fmt.Sprint(duration), bitrate, output)
 
 	if _, fileErr := os.Stat(output); fileErr != nil {
 		return nil, err
 	}
 
 	ret := &RadikoResult{
-		M4aPath: output,
+		MedPath: output,
 		Station: station,
 		Prog:    prog,
 	}
@@ -402,7 +403,7 @@ func (r *Radiko) record(ctx context.Context, output string, station string, buff
 	return ret, err
 }
 
-func (r *Radiko) download(ctx context.Context, authtoken string, station string, sec string, output string) error {
+func (r *Radiko) download(ctx context.Context, authtoken string, station string, sec string, bitrate string, output string) error {
 
 	rtmpdump, err := exec.LookPath("rtmpdump")
 
@@ -422,7 +423,7 @@ func (r *Radiko) download(ctx context.Context, authtoken string, station string,
 		"-o", "-",
 	)
 
-	converterCmd, err := newConverterCmd(r.Converter, output)
+	converterCmd, err := newConverterCmd(r.Converter, bitrate, output)
 
 	if err != nil {
 		return err

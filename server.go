@@ -39,12 +39,12 @@ func (s *Server) Run() error {
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/podcast/{program}.m4a", s.errorHandler(func(w http.ResponseWriter, r *http.Request) error {
+	router.HandleFunc("/podcast/{program}.mp3", s.errorHandler(func(w http.ResponseWriter, r *http.Request) error {
 		dir := mux.Vars(r)["program"]
 
-		m4aPath, m4aStat, err := s.m4aPath(dir)
+		medPath, medStat, err := s.medPath(dir)
 
-		if _, err := os.Stat(m4aPath); err != nil {
+		if _, err := os.Stat(medPath); err != nil {
 			http.NotFound(w, r)
 			return nil
 		}
@@ -56,7 +56,7 @@ func (s *Server) Run() error {
 			return nil
 		}
 
-		f, err := os.Open(m4aPath)
+		f, err := os.Open(medPath)
 
 		if err != nil {
 			return err
@@ -64,7 +64,7 @@ func (s *Server) Run() error {
 
 		defer f.Close()
 
-		http.ServeContent(w, r, m4aStat.Name(), m4aStat.ModTime(), f)
+		http.ServeContent(w, r, medStat.Name(), medStat.ModTime(), f)
 		return nil
 	}))
 
@@ -163,7 +163,7 @@ func (s *Server) rss(baseURL *url.URL) (*PodcastRss, error) {
 	channel.Link = "http://radiko.jp"
 	channel.Image.URL = baseURL.String() + "/radcast.png"
 	channel.Image.Title = s.Title
-	channel.Image.Link = "http://radiko.jp/"
+	channel.Image.Link = "http://radiko.jp"
 	channel.Description = "radiko"
 	channel.Language = "ja-JP"
 	channel.Copyright = "copyright 2019"
@@ -177,14 +177,14 @@ func (s *Server) rss(baseURL *url.URL) (*PodcastRss, error) {
 	channel.ITunesSummary = "radiko"
 	channel.ITunesSubtitle = "radiko"
 	channel.ITunesOwner.ITunesName = "radiko"
-	channel.ITunesOwner.ITunesEmail = "radiko"
+	channel.ITunesOwner.ITunesEmail = "radiko@example.com"
 	channel.ITunesExplicit = "No"
 	channel.ITunesKeywords = "radiko,radio"
 	channel.ITunesImage.Href = baseURL.String() + "/radcast.png"
-	channel.RawvoiceRating = "radio"
-	channel.RawvoiceLocation = "Japan"
-	channel.RawvoiceFrequency = "Program"
-	channel.ITunesCategory.Text = "radio"
+	//	channel.RawvoiceRating = "radio"
+	//	channel.RawvoiceLocation = "Japan"
+	//	channel.RawvoiceFrequency = "Program"
+	channel.ITunesCategory.Text = "Music"
 	channel.PubDate = PubDate{time.Now()}
 
 	channel.Items = items
@@ -196,7 +196,7 @@ func (s *Server) rss(baseURL *url.URL) (*PodcastRss, error) {
 
 func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 
-	_, m4aStat, err := s.m4aPath(dir)
+	_, medStat, err := s.medPath(dir)
 
 	if err != nil {
 		return nil, err
@@ -223,7 +223,7 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 		return nil, err
 	}
 
-	u, err := url.Parse("/podcast/" + dir + ".m4a")
+	u, err := url.Parse("/podcast/" + dir + ".mp3")
 
 	if err != nil {
 		return nil, err
@@ -236,7 +236,7 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 
 	// ft, _ := prog.FtTime()
 	// item.PubDate = PubDate{ft}
-	item.PubDate = PubDate{m4aStat.ModTime()}
+	item.PubDate = PubDate{medStat.ModTime()}
 
 	item.ITunesAuthor = prog.Pfm
 	if utf8.RuneCountInString(prog.Info) == 0 {
@@ -244,10 +244,11 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 	} else {
 		item.Description = prog.Info
 	}
+	item.Description += "<br>" + item.PubDate.String()
 
 	item.Enclosure.URL = baseURL.ResolveReference(u).String()
-	item.Enclosure.Length = int(m4aStat.Size())
-	item.Enclosure.Type = "audio/aac"
+	item.Enclosure.Length = int(medStat.Size())
+	item.Enclosure.Type = "audio/mpeg"
 
 	item.GUID = dir
 	item.ITunesDuration = fmtDuration(prog.Dur)
@@ -260,14 +261,14 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 	}
 	item.ITunesImage.Href = baseURL.ResolveReference(iu).String()
 
-	item.ITunesKeywords = "radiko,radio"
-	item.ITunesExplicit = "No"
+	//	item.ITunesKeywords = "radiko,radio"
+	//	item.ITunesExplicit = "No"
 
 	return &item, nil
 }
 
-func (s *Server) m4aPath(dir string) (string, os.FileInfo, error) {
-	return s.pathStat(dir, "podcast.m4a")
+func (s *Server) medPath(dir string) (string, os.FileInfo, error) {
+	return s.pathStat(dir, "podcast.mp3")
 }
 
 func (s *Server) xmlPath(dir string) (string, os.FileInfo, error) {

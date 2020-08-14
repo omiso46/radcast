@@ -13,7 +13,7 @@ type PodcastRss struct {
 	XMLName       xml.Name `xml:"rss"`
 	XmlnsItunes   string   `xml:"xmlns:itunes,attr,omitempty"`
 	XmlnsAtom     string   `xml:"xmlns:atom,attr,omitempty"`
-	XmlnsRawvoice string   `xml:"xmlns:rawvoice,attr,omitempty"`
+//	XmlnsRawvoice string   `xml:"xmlns:rawvoice,attr,omitempty"`
 	Version       string   `xml:"version,attr,omitempty"`
 	Channel       PodcastChannel
 }
@@ -48,9 +48,9 @@ type PodcastChannel struct {
 	ITunesImage    struct {
 		Href string `xml:"href,attr,omitempty"`
 	} `xml:"itunes:image,omitempty"`
-	RawvoiceRating    string `xml:"rawvoice:rating,omitempty"`
-	RawvoiceLocation  string `xml:"rawvoice:location,omitempty"`
-	RawvoiceFrequency string `xml:"rawvoice:frequency,omitempty"`
+//	RawvoiceRating    string `xml:"rawvoice:rating,omitempty"`
+//	RawvoiceLocation  string `xml:"rawvoice:location,omitempty"`
+//	RawvoiceFrequency string `xml:"rawvoice:frequency,omitempty"`
 	ITunesCategory    struct {
 		Text string `xml:"text,attr,omitempty"`
 	} `xml:"itunes:category,omitempty"`
@@ -77,8 +77,8 @@ type PodcastItem struct {
 	ITunesImage    struct {
 		Href string `xml:"href,attr,omitempty"`
 	} `xml:"itunes:image,omitempty"`
-	ITunesKeywords string `xml:"itunes:keywords,omitempty"`
-	ITunesExplicit string `xml:"itunes:explicit,omitempty"`
+//	ITunesKeywords string `xml:"itunes:keywords,omitempty"`
+//	ITunesExplicit string `xml:"itunes:explicit,omitempty"`
 }
 
 type PodcastItems []PodcastItem
@@ -110,7 +110,7 @@ func NewPodcastRss() *PodcastRss {
 	return &PodcastRss{
 		XmlnsItunes:   "http://www.itunes.com/dtds/podcast-1.0.dtd",
 		XmlnsAtom:     "http://www.w3.org/2005/Atom",
-		XmlnsRawvoice: "http://www.rawvoice.com/rawvoiceRssModule/",
+//		XmlnsRawvoice: "http://www.rawvoice.com/rawvoiceRssModule/",
 		Version:       "2.0",
 	}
 }

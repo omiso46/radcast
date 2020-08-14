@@ -14,6 +14,7 @@ var (
 	port       = flag.String("port", "8000", "port")
 	buffer     = flag.Int64("buffer", 60, "buffer for recording")
 	output     = flag.String("output", "output", "output")
+	bitrate    = flag.String("bitrate", "64k", "bitrate")
 	title      = flag.String("title", "radcast", "title")
 	configPath = flag.String("config", "config.json", "path of config.json")
 	setup      = flag.Bool("setup", false, "initialize json configuration")
@@ -43,7 +44,7 @@ func runRadcast() error {
 		*converter = cmd
 	}
 
-	r := NewRadcast(*configPath, *host, *port, *title, *output, *buffer, *converter)
+	r := NewRadcast(*configPath, *host, *port, *title, *output, *bitrate, *buffer, *converter)
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, os.Kill, syscall.SIGHUP)
