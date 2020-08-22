@@ -29,46 +29,50 @@ func newConverterCmd(path, bitrate, output string) (*exec.Cmd, error) {
 }
 
 func newFfmpegCmd(ffmpeg, bitrate, output string) *exec.Cmd {
-	//	return exec.Command(
-	//		ffmpeg,
-	//		"-y",
-	//		"-i", "-",
-	//		"-vn",
-	//		"-acodec", "copy",
-	//		output,
-	//	)
 	return exec.Command(
 		ffmpeg,
 		"-y",
 		"-i", "-",
 		"-vn",
-		"-acodec", "libmp3lame",
-		"-ar", "44100",
-		"-ab", bitrate,
-		"-ac", "2",
+		"-acodec", "copy",
+		"-movflags",
+		"+faststart",
 		output,
 	)
+	//	return exec.Command(
+	//		ffmpeg,
+	//		"-y",
+	//		"-i", "-",
+	//		"-vn",
+	//		"-acodec", "libmp3lame",
+	//		"-ar", "44100",
+	//		"-ab", bitrate,
+	//		"-ac", "2",
+	//		output,
+	//	)
 
 }
 
 func newAvconvCmd(avconv, bitrate, output string) *exec.Cmd {
-	//	return exec.Command(
-	//		avconv,
-	//		"-y",
-	//		"-i", "-",
-	//		"-vn",
-	//		"-c:a", "copy",
-	//		output,
-	//	)
 	return exec.Command(
 		avconv,
 		"-y",
 		"-i", "-",
 		"-vn",
-		"-c:a", "libmp3lame",
-		"-ar", "44100",
-		"-b:a", bitrate,
-		"-ac", "2",
+		"-c:a", "copy",
+		"-movflags",
+		"+faststart",
 		output,
 	)
+	//	return exec.Command(
+	//		avconv,
+	//		"-y",
+	//		"-i", "-",
+	//		"-vn",
+	//		"-c:a", "libmp3lame",
+	//		"-ar", "44100",
+	//		"-b:a", bitrate,
+	//		"-ac", "2",
+	//		output,
+	//	)
 }

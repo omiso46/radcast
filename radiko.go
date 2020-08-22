@@ -89,7 +89,7 @@ func (r *RadikoResult) Save(dir string) error {
 		return err
 	}
 
-	medPath := filepath.Join(programDir, "podcast.mp3")
+	medPath := filepath.Join(programDir, "podcast.m4a")
 	xmlPath := filepath.Join(programDir, "podcast.xml")
 
 	imgName := "podcast" + filepath.Ext(r.Prog.Img)
@@ -165,7 +165,7 @@ func (r *Radiko) run(ctx context.Context) []*RadikoResult {
 	results := []*RadikoResult{}
 
 	record := func() error {
-		output := filepath.Join(r.TempDir, fmt.Sprintf("radiko_%d.mp3", retry))
+		output := filepath.Join(r.TempDir, fmt.Sprintf("radiko_%d.m4a", retry))
 
 		ret, err := r.record(ctx, output, r.Station, r.Bitrate, r.Buffer)
 
@@ -221,7 +221,7 @@ func (r *Radiko) run(ctx context.Context) []*RadikoResult {
 
 // http://superuser.com/questions/314239/how-to-join-merge-many-mp3-files
 func (r *Radiko) ConcatOutput(dir string, results []*RadikoResult) (*RadikoResult, error) {
-	output := filepath.Join(dir, "radiko_concat.mp3")
+	output := filepath.Join(dir, "radiko_concat.m4a")
 
 	outputs := []string{}
 	for _, result := range results {

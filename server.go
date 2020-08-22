@@ -39,7 +39,7 @@ func (s *Server) Run() error {
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/podcast/{program}.mp3", s.errorHandler(func(w http.ResponseWriter, r *http.Request) error {
+	router.HandleFunc("/podcast/{program}.m4a", s.errorHandler(func(w http.ResponseWriter, r *http.Request) error {
 		dir := mux.Vars(r)["program"]
 
 		medPath, medStat, err := s.medPath(dir)
@@ -223,7 +223,7 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 		return nil, err
 	}
 
-	u, err := url.Parse("/podcast/" + dir + ".mp3")
+	u, err := url.Parse("/podcast/" + dir + ".m4a")
 
 	if err != nil {
 		return nil, err
@@ -244,11 +244,11 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 	} else {
 		item.Description = prog.Info
 	}
-	item.Description += "<br>" + item.PubDate.String()
+	item.Description += "<br><br>" + item.PubDate.String()
 
 	item.Enclosure.URL = baseURL.ResolveReference(u).String()
 	item.Enclosure.Length = int(medStat.Size())
-	item.Enclosure.Type = "audio/mpeg"
+	item.Enclosure.Type = "audio/aac"
 
 	item.GUID = dir
 	item.ITunesDuration = fmtDuration(prog.Dur)
@@ -268,7 +268,7 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 }
 
 func (s *Server) medPath(dir string) (string, os.FileInfo, error) {
-	return s.pathStat(dir, "podcast.mp3")
+	return s.pathStat(dir, "podcast.m4a")
 }
 
 func (s *Server) xmlPath(dir string) (string, os.FileInfo, error) {
