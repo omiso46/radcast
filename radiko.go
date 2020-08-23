@@ -129,7 +129,6 @@ func (r *RadikoResult) Log(v ...interface{}) {
 
 type Radiko struct {
 	Station   string
-	Bitrate   string
 	Buffer    int64
 	Converter string
 	TempDir   string
@@ -167,7 +166,7 @@ func (r *Radiko) run(ctx context.Context) []*RadikoResult {
 	record := func() error {
 		output := filepath.Join(r.TempDir, fmt.Sprintf("radiko_%d.m4a", retry))
 
-		ret, err := r.record(ctx, output, r.Station, r.Bitrate, r.Buffer)
+		ret, err := r.record(ctx, output, r.Station, r.Buffer)
 
 		if ret != nil {
 			results = append(results, ret)
@@ -349,7 +348,7 @@ func (r *Radiko) nowProgram(ctx context.Context, area string, station string) (*
 	return nil, errors.New("not found program")
 }
 
-func (r *Radiko) record(ctx context.Context, output string, station string, bitrate string, buffer int64) (*RadikoResult, error) {
+func (r *Radiko) record(ctx context.Context, output string, station string, buffer int64) (*RadikoResult, error) {
 
 	authtoken, area, err := r.auth(ctx)
 
@@ -388,7 +387,7 @@ func (r *Radiko) record(ctx context.Context, output string, station string, bitr
 
 	duration += buffer
 
-	err = r.download(ctx, authtoken, station, fmt.Sprint(duration), bitrate, output)
+	err = r.download(ctx, authtoken, station, fmt.Sprint(duration), output)
 
 	if _, fileErr := os.Stat(output); fileErr != nil {
 		return nil, err
@@ -403,7 +402,7 @@ func (r *Radiko) record(ctx context.Context, output string, station string, bitr
 	return ret, err
 }
 
-func (r *Radiko) download(ctx context.Context, authtoken string, station string, sec string, bitrate string, output string) error {
+func (r *Radiko) download(ctx context.Context, authtoken string, station string, sec string, output string) error {
 
 	rtmpdump, err := exec.LookPath("rtmpdump")
 
@@ -423,7 +422,7 @@ func (r *Radiko) download(ctx context.Context, authtoken string, station string,
 		"-o", "-",
 	)
 
-	converterCmd, err := newConverterCmd(r.Converter, bitrate, output)
+	converterCmd, err := newConverterCmd(r.Converter, output)
 
 	if err != nil {
 		return err

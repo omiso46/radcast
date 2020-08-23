@@ -25,12 +25,11 @@ type Radcast struct {
 	port       string
 	title      string
 	output     string
-	bitrate    string
 	buffer     int64
 	converter  string
 }
 
-func NewRadcast(path string, host string, port string, title string, output string, bitrate string, buffer int64, converter string) *Radcast {
+func NewRadcast(path string, host string, port string, title string, output string, buffer int64, converter string) *Radcast {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	r := &Radcast{
@@ -43,7 +42,6 @@ func NewRadcast(path string, host string, port string, title string, output stri
 		port:       port,
 		title:      title,
 		output:     output,
-		bitrate:    bitrate,
 		buffer:     buffer,
 		converter:  converter,
 	}
@@ -130,7 +128,6 @@ func (r *Radcast) ReloadConfig() error {
 
 					radiko := &Radiko{
 						Station:   station,
-						Bitrate:   r.bitrate,
 						Buffer:    r.buffer,
 						Converter: r.converter,
 						TempDir:   dir,

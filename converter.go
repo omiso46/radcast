@@ -16,19 +16,19 @@ func lookConverterCommand() (string, error) {
 	return "", fmt.Errorf("not found converter cmd such also ffmpeg, avconv.")
 }
 
-func newConverterCmd(path, bitrate, output string) (*exec.Cmd, error) {
+func newConverterCmd(path, output string) (*exec.Cmd, error) {
 
 	switch {
 	case regexp.MustCompile("ffmpeg$").MatchString(path):
-		return newFfmpegCmd(path, bitrate, output), nil
+		return newFfmpegCmd(path, output), nil
 	case regexp.MustCompile("avconv$").MatchString(path):
-		return newAvconvCmd(path, bitrate, output), nil
+		return newAvconvCmd(path, output), nil
 	}
 
 	return nil, fmt.Errorf("path should be ffmpeg or avconv")
 }
 
-func newFfmpegCmd(ffmpeg, bitrate, output string) *exec.Cmd {
+func newFfmpegCmd(ffmpeg, output string) *exec.Cmd {
 	return exec.Command(
 		ffmpeg,
 		"-y",
@@ -46,14 +46,13 @@ func newFfmpegCmd(ffmpeg, bitrate, output string) *exec.Cmd {
 	//		"-vn",
 	//		"-acodec", "libmp3lame",
 	//		"-ar", "44100",
-	//		"-ab", bitrate,
 	//		"-ac", "2",
 	//		output,
 	//	)
 
 }
 
-func newAvconvCmd(avconv, bitrate, output string) *exec.Cmd {
+func newAvconvCmd(avconv, output string) *exec.Cmd {
 	return exec.Command(
 		avconv,
 		"-y",
@@ -71,7 +70,6 @@ func newAvconvCmd(avconv, bitrate, output string) *exec.Cmd {
 	//		"-vn",
 	//		"-c:a", "libmp3lame",
 	//		"-ar", "44100",
-	//		"-b:a", bitrate,
 	//		"-ac", "2",
 	//		output,
 	//	)
