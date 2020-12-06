@@ -27,7 +27,8 @@ import (
 
 const (
 	radikoTimeLayout = "20060102150405"
-	playerURL        = "http://radiko.jp/apps/js/flash/myplayer-release.swf"
+	// playerURL        = "http://radiko.jp/apps/js/flash/myplayer-release.swf"
+	authKey = "bcd151073c03b352e1ef2fd66c32209da9ca0afa"
 )
 
 type RadikoPrograms struct {
@@ -84,7 +85,6 @@ type RadikoResult struct {
 
 func (r *RadikoResult) Save(dir string) error {
 	programDir := filepath.Join(dir, fmt.Sprintf("%s_%s", r.Prog.Ft, r.Station))
-
 	if err := os.MkdirAll(programDir, 0777); err != nil {
 		return err
 	}
@@ -104,7 +104,6 @@ func (r *RadikoResult) Save(dir string) error {
 	}
 
 	xmlFile, err := os.Create(xmlPath)
-
 	if err != nil {
 		return err
 	}
@@ -117,7 +116,6 @@ func (r *RadikoResult) Save(dir string) error {
 		return err
 	}
 
-	// r.Log("saved media:", medPath, " xml:", xmlPath, " img:", imgPath)
 	r.Log("saved path:", programDir)
 
 	return nil
@@ -283,13 +281,11 @@ func (r *Radiko) todayPrograms(ctx context.Context, area string) (*RadikoProgram
 	}
 
 	u, err := url.Parse("http://radiko.jp/v3/program/date/" + tmpDate.Format(layoutDate) + "/" + area + ".xml")
-
 	if err != nil {
 		return nil, err
 	}
 
 	req, err := http.NewRequest("GET", u.String(), nil)
-
 	if err != nil {
 		return nil, err
 	}
@@ -318,7 +314,6 @@ func (r *Radiko) todayPrograms(ctx context.Context, area string) (*RadikoProgram
 
 func (r *Radiko) nowProgram(ctx context.Context, area string, station string) (*RadikoProg, error) {
 	progs, err := r.todayPrograms(ctx, area)
-
 	if err != nil {
 		return nil, err
 	}
@@ -351,13 +346,11 @@ func (r *Radiko) nowProgram(ctx context.Context, area string, station string) (*
 func (r *Radiko) record(ctx context.Context, output string, station string, buffer int64) (*RadikoResult, error) {
 
 	authtoken, area, err := r.auth(ctx)
-
 	if err != nil {
 		return nil, err
 	}
 
 	prog, err := r.nowProgram(ctx, area, station)
-
 	if err != nil {
 		return nil, err
 	}
@@ -380,7 +373,6 @@ func (r *Radiko) record(ctx context.Context, output string, station string, buff
 	r.Log("start recording ", prog.Title)
 
 	duration, err := prog.Duration()
-
 	if err != nil {
 		return nil, err
 	}
@@ -405,7 +397,6 @@ func (r *Radiko) record(ctx context.Context, output string, station string, buff
 func (r *Radiko) download(ctx context.Context, authtoken string, station string, sec string, output string) error {
 
 	rtmpdump, err := exec.LookPath("rtmpdump")
-
 	if err != nil {
 		return err
 	}
@@ -416,14 +407,13 @@ func (r *Radiko) download(ctx context.Context, authtoken string, station string,
 		"-r", "rtmpe://f-radiko.smartstream.ne.jp",
 		"--playpath", "simul-stream.stream",
 		"--app", station+"/_definst_",
-		"-W", playerURL,
+		// "-W", playerURL,
 		"-C", `S:""`, "-C", `S:""`, "-C", `S:""`, "-C", "S:"+authtoken,
 		"--stop", sec,
 		"-o", "-",
 	)
 
 	converterCmd, err := newConverterCmd(r.Converter, output)
-
 	if err != nil {
 		return err
 	}
@@ -432,7 +422,6 @@ func (r *Radiko) download(ctx context.Context, authtoken string, station string,
 	r.Log("converter command: ", strings.Join(converterCmd.Args, " "))
 
 	pipe, err := rtmpdumpCmd.StdoutPipe()
-
 	if err != nil {
 		return err
 	}
@@ -477,73 +466,16 @@ func (r *Radiko) download(ctx context.Context, authtoken string, station string,
 
 // return authtoken, area, err
 func (r *Radiko) auth(ctx context.Context) (string, string, error) {
-	req, err := http.NewRequest("GET", playerURL, nil)
 
-	if err != nil {
-		return "", "", err
-	}
-
-	tmpSwfFile, err := ioutil.TempFile("", "swf")
-
-	if err != nil {
-		return "", "", err
-	}
-
-	defer func() {
-		tmpSwfFile.Close()
-		os.Remove(tmpSwfFile.Name())
-	}()
-
-	err = r.httpDo(ctx, req, func(resp *http.Response, err error) error {
-		if err != nil {
-			return err
-		}
-
-		defer resp.Body.Close()
-
-		if _, err := io.Copy(tmpSwfFile, resp.Body); err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return "", "", err
-	}
-
-	swfextract, err := exec.LookPath("swfextract")
-
-	if err != nil {
-		return "", "", err
-	}
-
-	tmpAuthKeyPngFile, err := ioutil.TempFile("", ".png")
-
-	if err != nil {
-		return "", "", err
-	}
-
-	defer func() {
-		tmpAuthKeyPngFile.Close()
-		os.Remove(tmpAuthKeyPngFile.Name())
-	}()
-
-	swfextractCmd := exec.Command(swfextract, "-b", "12", tmpSwfFile.Name(), "-o", tmpAuthKeyPngFile.Name())
-	if err := swfextractCmd.Run(); err != nil {
-		return "", "", err
-	}
-
-	req, err = http.NewRequest("POST", "https://radiko.jp/v2/api/auth1_fms", nil)
-
+	req, err := http.NewRequest("POST", "https://radiko.jp/v2/api/auth1_fms", nil)
 	if err != nil {
 		return "", "", err
 	}
 
 	req.Header.Set("pragma", "no-cache")
-	req.Header.Set("X-Radiko-App", "pc_ts")
-	req.Header.Set("X-Radiko-App-Version", "4.0.1")
-	req.Header.Set("X-Radiko-User", "test-stream")
+	req.Header.Set("X-Radiko-App", "pc_html5")
+	req.Header.Set("X-Radiko-App-Version", "0.0.1")
+	req.Header.Set("X-Radiko-User", "dummy_user")
 	req.Header.Set("X-Radiko-Device", "pc")
 
 	var authtoken string
@@ -573,22 +505,16 @@ func (r *Radiko) auth(ctx context.Context) (string, string, error) {
 		}
 
 		keylengthI, err := strconv.Atoi(keylength)
-
 		if err != nil {
 			return err
 		}
-
 		keyoffsetI, err := strconv.Atoi(keyoffset)
 
 		if err != nil {
 			return err
 		}
 
-		partialkeyByt := make([]byte, keylengthI)
-		if _, err = tmpAuthKeyPngFile.ReadAt(partialkeyByt, int64(keyoffsetI)); err != nil {
-			return err
-		}
-
+		partialkeyByt := []byte(authKey)[keyoffsetI : keyoffsetI+keylengthI]
 		partialkey = base64.StdEncoding.EncodeToString(partialkeyByt)
 
 		return nil
@@ -599,15 +525,14 @@ func (r *Radiko) auth(ctx context.Context) (string, string, error) {
 	}
 
 	req, err = http.NewRequest("POST", "https://radiko.jp/v2/api/auth2_fms", nil)
-
 	if err != nil {
 		return "", "", err
 	}
 
 	req.Header.Set("pragma", "no-cache")
-	req.Header.Set("X-Radiko-App", "pc_ts")
-	req.Header.Set("X-Radiko-App-Version", "4.0.1")
-	req.Header.Set("X-Radiko-User", "test-stream")
+	req.Header.Set("X-Radiko-App", "pc_html5")
+	req.Header.Set("X-Radiko-App-Version", "0.0.1")
+	req.Header.Set("X-Radiko-User", "dummy_user")
 	req.Header.Set("X-Radiko-Device", "pc")
 	req.Header.Set("X-Radiko-Authtoken", authtoken)
 	req.Header.Set("X-Radiko-Partialkey", partialkey)
@@ -621,13 +546,11 @@ func (r *Radiko) auth(ctx context.Context) (string, string, error) {
 		defer resp.Body.Close()
 
 		byt, err := ioutil.ReadAll(resp.Body)
-
 		if err != nil {
 			return err
 		}
 
 		matches := regexp.MustCompile("(.*),(.*),(.*)").FindAllStringSubmatch(string(byt), -1)
-
 		if len(matches) == 1 && len(matches[0]) != 4 {
 			return errors.New("failed to auth")
 		}
