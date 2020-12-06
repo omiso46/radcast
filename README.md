@@ -3,7 +3,7 @@
 radikoを録音し、podcast配信する
 
 radicastを少し、自分好みに改造しました
-* <s>無劣化録音</s> → MP3コンバート復活
+* 無劣化録音
 * 05時開始番組が録音できないときがある
 * チャンネルのアイコン設定
 * 番組のアイコン取得
@@ -15,7 +15,7 @@ ORIGINAL By https://github.com/soh335/radicast
 ## 必要パッケージ
 
 * rtmpdump
-* swftools
+* <s>swftools</s> ← 2020/12のradiko仕様変更の対応で不要に
 * ffmpeg or avconv
 
 ## インストール
