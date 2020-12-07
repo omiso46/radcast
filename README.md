@@ -1,5 +1,7 @@
 # radcast
 
+■2020/12のradikoの仕様変更に対応しました。
+
 radikoを録音し、podcast配信する
 
 radicastを少し、自分好みに改造しました
