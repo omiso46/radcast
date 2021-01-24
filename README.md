@@ -16,9 +16,9 @@ ORIGINAL By https://github.com/soh335/radicast
 
 ## 必要パッケージ
 
-* rtmpdump
+* <s>rtmpdump</s> ← HLSストリーミング対応で不要に
 * <s>swftools</s> ← 2020/12のradiko仕様変更の対応で不要に
-* ffmpeg or avconv
+* ffmpeg <s>or avconv</s> ← avconvは検証環境がないので対象外に
 
 ## インストール
 
