@@ -31,14 +31,24 @@ func newConverterCmd(path, output string) (*exec.Cmd, error) {
 func newFfmpegCmd(ffmpeg, output string) *exec.Cmd {
 	return exec.Command(
 		ffmpeg,
+		"-f", "concat",
+		"-safe", "0",
 		"-y",
-		"-i", "-",
-		"-vn",
-		"-acodec", "copy",
+		"-c", "copy",
 		"-movflags",
 		"+faststart",
 		output,
 	)
+	// return exec.Command(
+	// 	ffmpeg,
+	// 	"-y",
+	// 	"-i", "-",
+	// 	"-vn",
+	// 	"-acodec", "copy",
+	// 	"-movflags",
+	// 	"+faststart",
+	// 	output,
+	// )
 	//	return exec.Command(
 	//		ffmpeg,
 	//		"-y",
@@ -73,4 +83,22 @@ func newAvconvCmd(avconv, output string) *exec.Cmd {
 	//		"-ac", "2",
 	//		output,
 	//	)
+}
+
+func hlsFfmpegCmd(ffmpeg, streamURL string, authtoken string, sec string, output string) *exec.Cmd {
+	return exec.Command(
+		ffmpeg,
+		"-loglevel", "error",
+		"-fflags", "+discardcorrupt",
+		"-headers", `"X-Radiko-Authtoken: `+authtoken+`"`,
+		"-i", streamURL,
+		"-acodec", "copy",
+		"-vn",
+		"-bsf:a", "aac_adtstoasc",
+		"-y",
+		"-t", sec,
+		"-movflags", "+faststart",
+		output,
+	)
+
 }
