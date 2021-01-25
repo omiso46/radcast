@@ -1,14 +1,14 @@
 # radcast
 
-■2020/12のradikoの仕様変更に対応しました。
+■2021/01のradikoの仕様変更（HLSストリーミング）に対応しました。
 
 radikoを録音し、podcast配信する
 
 radicastを少し、自分好みに改造しました
 * 無劣化録音
-* 05時開始番組が録音できないときがある
 * チャンネルのアイコン設定
 * 番組のアイコン取得
+* 05時開始番組が録音できないときがある
 * 他
 
 ORIGINAL By https://github.com/soh335/radicast
@@ -16,9 +16,10 @@ ORIGINAL By https://github.com/soh335/radicast
 
 ## 必要パッケージ
 
-* <s>rtmpdump</s> ← HLSストリーミング対応で不要に
-* <s>swftools</s> ← 2020/12のradiko仕様変更の対応で不要に
-* ffmpeg <s>or avconv</s> ← avconvは検証環境がないので対象外に
+* ffmpeg
+* <s>or avconv</s> ← avconvは検証環境がないので対象外に
+* <s>rtmpdump</s> ← HLSストリーミングの対応で不要に
+* <s>swftools</s> ← flash廃止の対応で不要に
 
 ## インストール
 
