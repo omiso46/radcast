@@ -671,8 +671,9 @@ func (r *Radiko) hlsDownload(ctx context.Context, authtoken string, station stri
 
 	// r.Log("ffmpeg command: ", strings.Join(hlsRecCmd.Args, " "))
 
+	sh, err := lookShellCommand()
 	hlsRecShell := exec.Command(
-		"/usr/bin/sh",
+		sh,
 		filepath.Join(r.TempDir, "radikorec.sh"),
 	)
 
@@ -704,4 +705,12 @@ func (r *Radiko) hlsDownload(ctx context.Context, authtoken string, station stri
 	case err := <-errChan:
 		return err
 	}
+}
+
+func lookShellCommand() (string, error) {
+	cmd, err := exec.LookPath("sh")
+	if err == nil {
+		return cmd, nil
+	}
+	return "", fmt.Errorf("not found shell.")
 }
