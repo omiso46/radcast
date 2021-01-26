@@ -640,7 +640,7 @@ func (r *Radiko) GetStreamURL(stationID string) (string, error) {
 
 	var streamURL string = ""
 	for _, i := range urlData.URL {
-		if i.AreaFree {
+		if !i.AreaFree {
 			streamURL = i.PlaylistCreateURL
 			break
 		}
