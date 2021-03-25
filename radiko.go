@@ -1,10 +1,5 @@
 package main
 
-// api for radiko, rtmpdump and ffmpeg command parameter
-// are taken from
-// https://github.com/miyagawa/ripdiko
-// https://gist.github.com/saiten/875864
-
 import (
 	"bytes"
 	"context"
@@ -364,15 +359,11 @@ func (r *Radiko) record(ctx context.Context, output string, station string, buff
 		return nil, err
 	}
 
-	// r.Log("authtoken:" + authtoken)
-	// r.Log("area:" + area)
-
 	prog, err := r.nowProgram(ctx, area, station)
 	if err != nil {
 		return nil, err
 	}
 
-	// r.Log("Mkdir ", r.TempDir)
 	os.Mkdir(r.TempDir, 0777)
 
 	r.Log("Get Img ", prog.Img)
@@ -385,7 +376,6 @@ func (r *Radiko) record(ctx context.Context, output string, station string, buff
 			defer file.Close()
 
 			io.Copy(file, img.Body)
-			// r.Log("Save -> " + filepath.Dir(output) + "/podcast" + filepath.Ext(prog.Img))
 
 		}
 	}
@@ -398,7 +388,6 @@ func (r *Radiko) record(ctx context.Context, output string, station string, buff
 
 	duration += buffer
 
-	// err = r.download(ctx, authtoken, station, fmt.Sprint(duration), output)
 	err = r.hlsDownload(ctx, authtoken, station, fmt.Sprint(duration), output)
 
 	if _, fileErr := os.Stat(output); fileErr != nil {
@@ -412,76 +401,6 @@ func (r *Radiko) record(ctx context.Context, output string, station string, buff
 	}
 
 	return ret, err
-}
-
-func (r *Radiko) download(ctx context.Context, authtoken string, station string, sec string, output string) error {
-
-	rtmpdump, err := exec.LookPath("rtmpdump")
-	if err != nil {
-		return err
-	}
-
-	rtmpdumpCmd := exec.Command(rtmpdump,
-		"--live",
-		"--quiet",
-		"-r", "rtmpe://f-radiko.smartstream.ne.jp",
-		"--playpath", "simul-stream.stream",
-		"--app", station+"/_definst_",
-		// "-W", playerURL,
-		"-C", `S:""`, "-C", `S:""`, "-C", `S:""`, "-C", "S:"+authtoken,
-		"--stop", sec,
-		"-o", "-",
-	)
-
-	converterCmd, err := newConverterCmd(r.Converter, output)
-	if err != nil {
-		return err
-	}
-
-	r.Log("rtmpdump command: ", strings.Join(rtmpdumpCmd.Args, " "))
-	r.Log("converter command: ", strings.Join(converterCmd.Args, " "))
-
-	pipe, err := rtmpdumpCmd.StdoutPipe()
-	if err != nil {
-		return err
-	}
-
-	converterCmd.Stdin = pipe
-
-	errChan := make(chan error)
-	go func() {
-
-		if err := converterCmd.Start(); err != nil {
-			errChan <- err
-			return
-		}
-
-		if err := rtmpdumpCmd.Run(); err != nil {
-			errChan <- err
-			return
-		}
-
-		if err := converterCmd.Wait(); err != nil {
-			errChan <- err
-			return
-		}
-
-		errChan <- nil
-	}()
-
-	select {
-	case <-ctx.Done():
-		rtmpdumpCmd.Process.Kill()
-		err := <-errChan
-		if err == nil {
-			err = ctx.Err()
-		}
-		return err
-	case err := <-errChan:
-		return err
-	}
-
-	//	return nil
 }
 
 // return authtoken, area, err
@@ -517,17 +436,14 @@ func (r *Radiko) auth(ctx context.Context) (string, string, error) {
 		if authtoken == "" {
 			return errors.New("auth token is empty")
 		}
-		// r.Log("authtoken:" + authtoken)
 
 		if keylength == "" {
 			return errors.New("keylength is empty")
 		}
-		// r.Log("keylength:" + keylength)
 
 		if keyoffset == "" {
 			return errors.New("keyoffset is empty")
 		}
-		// r.Log("keyoffset:" + keyoffset)
 
 		keylengthI, err := strconv.ParseInt(keylength, 10, 64)
 		if err != nil {
@@ -669,25 +585,21 @@ func (r *Radiko) hlsDownload(ctx context.Context, authtoken string, station stri
 		return err
 	}
 
-	// r.Log("ffmpeg command: ", strings.Join(hlsRecCmd.Args, " "))
-
 	sh, err := lookShellCommand()
 	hlsRecShell := exec.Command(
 		sh,
 		filepath.Join(r.TempDir, "radikorec.sh"),
 	)
 
-	// r.Log("hlsRecShell command: ", strings.Join(hlsRecShell.Args, " "))
-
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	hlsRecShell.Stdout = &out
-	hlsRecShell.Stderr = &stderr
+	var outbuff bytes.Buffer
+	var errbuff bytes.Buffer
+	hlsRecShell.Stdout = &outbuff
+	hlsRecShell.Stderr = &errbuff
 
 	errChan := make(chan error)
 	go func() {
 		if err := hlsRecShell.Run(); err != nil {
-			r.Log("CmdRun err:" + stderr.String())
+			r.Log("CmdRun err:" + errbuff.String())
 			errChan <- err
 			return
 		}

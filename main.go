@@ -17,7 +17,6 @@ var (
 	title      = flag.String("title", "radcast", "title")
 	configPath = flag.String("config", "config.json", "path of config.json")
 	setup      = flag.Bool("setup", false, "initialize json configuration")
-	converter  = flag.String("converter", "", "ffmpeg or avconv. If not set this option, radcast search its automatically.")
 )
 
 func main() {
@@ -35,15 +34,12 @@ func main() {
 
 func runRadcast() error {
 
-	if *converter == "" {
-		cmd, err := lookConverterCommand()
-		if err != nil {
-			return err
-		}
-		*converter = cmd
+	converter, err := lookConverterCommand()
+	if err != nil {
+		return err
 	}
 
-	r := NewRadcast(*configPath, *host, *port, *title, *output, *buffer, *converter)
+	r := NewRadcast(*configPath, *host, *port, *title, *output, *buffer, converter)
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, os.Kill, syscall.SIGHUP)

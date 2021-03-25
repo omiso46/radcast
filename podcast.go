@@ -10,12 +10,11 @@ const (
 )
 
 type PodcastRss struct {
-	XMLName       xml.Name `xml:"rss"`
-	XmlnsItunes   string   `xml:"xmlns:itunes,attr,omitempty"`
-	XmlnsAtom     string   `xml:"xmlns:atom,attr,omitempty"`
-//	XmlnsRawvoice string   `xml:"xmlns:rawvoice,attr,omitempty"`
-	Version       string   `xml:"version,attr,omitempty"`
-	Channel       PodcastChannel
+	XMLName     xml.Name `xml:"rss"`
+	XmlnsItunes string   `xml:"xmlns:itunes,attr,omitempty"`
+	XmlnsAtom   string   `xml:"xmlns:atom,attr,omitempty"`
+	Version     string   `xml:"version,attr,omitempty"`
+	Channel     PodcastChannel
 }
 
 type PodcastChannel struct {
@@ -48,10 +47,7 @@ type PodcastChannel struct {
 	ITunesImage    struct {
 		Href string `xml:"href,attr,omitempty"`
 	} `xml:"itunes:image,omitempty"`
-//	RawvoiceRating    string `xml:"rawvoice:rating,omitempty"`
-//	RawvoiceLocation  string `xml:"rawvoice:location,omitempty"`
-//	RawvoiceFrequency string `xml:"rawvoice:frequency,omitempty"`
-	ITunesCategory    struct {
+	ITunesCategory struct {
 		Text string `xml:"text,attr,omitempty"`
 	} `xml:"itunes:category,omitempty"`
 	PubDate PubDate `xml:"pubDate,omitempty"`
@@ -77,8 +73,6 @@ type PodcastItem struct {
 	ITunesImage    struct {
 		Href string `xml:"href,attr,omitempty"`
 	} `xml:"itunes:image,omitempty"`
-//	ITunesKeywords string `xml:"itunes:keywords,omitempty"`
-//	ITunesExplicit string `xml:"itunes:explicit,omitempty"`
 }
 
 type PodcastItems []PodcastItem
@@ -102,15 +96,14 @@ type PubDate struct {
 func (p PubDate) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	e.EncodeToken(start)
 	e.EncodeToken(xml.CharData(p.Format(pubDateFormat)))
-	e.EncodeToken(xml.EndElement{start.Name})
+	e.EncodeToken(xml.EndElement{Name: start.Name})
 	return nil
 }
 
 func NewPodcastRss() *PodcastRss {
 	return &PodcastRss{
-		XmlnsItunes:   "http://www.itunes.com/dtds/podcast-1.0.dtd",
-		XmlnsAtom:     "http://www.w3.org/2005/Atom",
-//		XmlnsRawvoice: "http://www.rawvoice.com/rawvoiceRssModule/",
-		Version:       "2.0",
+		XmlnsItunes: "http://www.itunes.com/dtds/podcast-1.0.dtd",
+		XmlnsAtom:   "http://www.w3.org/2005/Atom",
+		Version:     "2.0",
 	}
 }

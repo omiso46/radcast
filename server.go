@@ -181,9 +181,6 @@ func (s *Server) rss(baseURL *url.URL) (*PodcastRss, error) {
 	channel.ITunesExplicit = "No"
 	channel.ITunesKeywords = "radiko,radio"
 	channel.ITunesImage.Href = baseURL.String() + "/radcast.png"
-	//	channel.RawvoiceRating = "radio"
-	//	channel.RawvoiceLocation = "Japan"
-	//	channel.RawvoiceFrequency = "Program"
 	channel.ITunesCategory.Text = "Music"
 	channel.PubDate = PubDate{time.Now()}
 
@@ -234,8 +231,6 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 	item.Title = prog.Title
 	item.Link = prog.URL
 
-	// ft, _ := prog.FtTime()
-	// item.PubDate = PubDate{ft}
 	item.PubDate = PubDate{medStat.ModTime()}
 
 	item.ITunesAuthor = prog.Pfm
@@ -260,9 +255,6 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 		return nil, err
 	}
 	item.ITunesImage.Href = baseURL.ResolveReference(iu).String()
-
-	//	item.ITunesKeywords = "radiko,radio"
-	//	item.ITunesExplicit = "No"
 
 	return &item, nil
 }
