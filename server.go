@@ -239,7 +239,7 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 	} else {
 		item.Description = prog.Info
 	}
-	item.Description += "<br><br>" + item.PubDate.String()
+	item.Description += "<br><br>" + fmtDateTime(prog.Ft) + " - " + fmtDateTime(prog.To)
 
 	item.Enclosure.URL = baseURL.ResolveReference(u).String()
 	item.Enclosure.Length = int(medStat.Size())
@@ -295,4 +295,10 @@ func fmtDuration(sec string) string {
 	s := d / time.Second
 
 	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
+}
+
+func fmtDateTime(datetime string) string {
+	return fmt.Sprintf("%s/%s/%s %s:%s:%s",
+		datetime[0:4], datetime[4:6], datetime[6:8],
+		datetime[8:10], datetime[10:12], datetime[12:14])
 }
