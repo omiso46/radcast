@@ -1,6 +1,8 @@
 # radcast
 
-■2021/01のradikoの仕様変更（HLSストリーミング）に対応しました。
+■ 2021/01のradikoの仕様変更（HLSストリーミング）に対応しました。
+■ golangからのffmpeg直接起動がうまくいかないのでsh経由で動作させる。
+■ つまりlinux専用
 
 radikoを録音し、podcast配信する
 
@@ -16,6 +18,7 @@ ORIGINAL By https://github.com/soh335/radicast
 
 ## 必要パッケージ
 
+* sh
 * ffmpeg
 * <s>or avconv</s> ← avconvは検証環境がないので対象外に
 * <s>rtmpdump</s> ← HLSストリーミングの対応で不要に
@@ -24,7 +27,7 @@ ORIGINAL By https://github.com/soh335/radicast
 ## インストール
 
 ```
-$ go get github.com/omiso46/radcast
+$ go install github.com/omiso46/radcast@latest
 ```
 
 ## 使い方
@@ -56,4 +59,4 @@ $ kill -HUP nnn
 * MIT
 
 ## お約束
-録音ファイルは個人使用の範囲内で。絶対。
+録音ファイルは個人使用の範囲内で。絶対！
