@@ -234,10 +234,11 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 	item.PubDate = PubDate{medStat.ModTime()}
 
 	item.ITunesAuthor = prog.Pfm
+	item.Description = "<center><img src=\"" + prog.Img + "\"></center><br><br>"
 	if utf8.RuneCountInString(prog.Info) == 0 {
-		item.Description = prog.Desc
+		item.Description += prog.Desc
 	} else {
-		item.Description = prog.Info
+		item.Description += prog.Info
 	}
 	item.Description += "<br><br>" + fmtDateTime(prog.Ft) + " - " + fmtDateTime(prog.To)
 
