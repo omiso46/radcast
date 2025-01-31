@@ -24,7 +24,7 @@ import (
 const (
 	radikoTimeLayout = "20060102150405"
 	authKey          = "bcd151073c03b352e1ef2fd66c32209da9ca0afa"
-	streamMultiURL   = "http://radiko.jp/v2/station/stream_smh_multi/%s.xml"
+	streamMultiURL   = "https://radiko.jp/v3/station/stream/aHybrid01/%s.xml"
 )
 
 type RadikoPrograms struct {
@@ -366,7 +366,7 @@ func (r *Radiko) record(ctx context.Context, output string, station string, buff
 
 	os.Mkdir(r.TempDir, 0777)
 
-	r.Log("Get Img ", prog.Img)
+	r.Log("Get Img:", prog.Img)
 	img, err := http.Get(prog.Img)
 	if err == nil {
 		defer img.Body.Close()
@@ -416,7 +416,7 @@ func (r *Radiko) auth(ctx context.Context) (string, string, error) {
 	// req.Header.Set("Accept", "*/*")
 	req.Header.Set("X-Radiko-App", "pc_html5")
 	req.Header.Set("X-Radiko-App-Version", "0.0.1")
-	req.Header.Set("X-Radiko-User", "test-stream")
+	req.Header.Set("X-Radiko-User", "dummy_user")
 	req.Header.Set("X-Radiko-Device", "pc")
 
 	var authtoken string
@@ -458,6 +458,13 @@ func (r *Radiko) auth(ctx context.Context) (string, string, error) {
 		partialkeyByt := authKey[keyoffsetI : keyoffsetI+keylengthI]
 		partialkey = base64.StdEncoding.EncodeToString([]byte(partialkeyByt))
 
+		// deBUG Log
+		r.Log("authtoken:" + authtoken)
+		r.Log("keylength:" + keylength)
+		r.Log("keyoffset:" + keyoffset)
+		r.Log("partialkeyByt:" + partialkeyByt)
+		r.Log("partialkey:" + partialkey)
+
 		return nil
 	})
 
@@ -475,7 +482,7 @@ func (r *Radiko) auth(ctx context.Context) (string, string, error) {
 	// req.Header.Set("Accept", "*/*")
 	// req.Header.Set("X-Radiko-App", "pc_html5")
 	// req.Header.Set("X-Radiko-App-Version", "0.0.1")
-	req.Header.Set("X-Radiko-User", "test-stream")
+	req.Header.Set("X-Radiko-User", "dummy_user")
 	req.Header.Set("X-Radiko-Device", "pc")
 	req.Header.Set("X-Radiko-Authtoken", authtoken)
 	req.Header.Set("X-Radiko-Partialkey", partialkey)
@@ -567,6 +574,7 @@ func (r *Radiko) GetStreamURL(stationID string) (string, error) {
 
 }
 
+/* なぜか動いてくれない
 func (r *Radiko) hlsDownload(ctx context.Context, authtoken string, station string, sec string, output string) error {
 
 	streamURL, err := r.GetStreamURL(station)
@@ -574,6 +582,46 @@ func (r *Radiko) hlsDownload(ctx context.Context, authtoken string, station stri
 	if err != nil {
 		return err
 	}
+
+	r.Log("hlsFfmpegCmd:", strings.Join(hlsRecCmd.Args, " "))
+
+	var errbuff bytes.Buffer
+	hlsRecCmd.Stderr = &errbuff
+
+	errChan := make(chan error)
+	go func() {
+		if err := hlsRecCmd.Run(); err != nil {
+			r.Log("CmdRun err:" + errbuff.String())
+			errChan <- err
+			return
+		}
+		errChan <- nil
+
+	}()
+
+	select {
+	case <-ctx.Done():
+		err := <-errChan
+		if err == nil {
+			err = ctx.Err()
+		}
+		return err
+	case err := <-errChan:
+		return err
+	}
+
+}
+*/
+
+func (r *Radiko) hlsDownload(ctx context.Context, authtoken string, station string, sec string, output string) error {
+
+	streamURL, err := r.GetStreamURL(station)
+	hlsRecCmd := hlsFfmpegCmd(r.Converter, streamURL, authtoken, sec, output)
+	if err != nil {
+		return err
+	}
+
+	r.Log("hlsFfmpegCmd:", strings.Join(hlsRecCmd.Args, " "))
 
 	shfile, err := os.Create(filepath.Join(r.TempDir, "radikorec.sh"))
 	if err != nil {
