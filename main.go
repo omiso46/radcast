@@ -75,5 +75,5 @@ func runSetup() {
 	if err := SetupConfig(ctx); err != nil {
 		log.Fatal(err)
 	}
-	return
+
 }

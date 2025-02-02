@@ -458,13 +458,6 @@ func (r *Radiko) auth(ctx context.Context) (string, string, error) {
 		partialkeyByt := authKey[keyoffsetI : keyoffsetI+keylengthI]
 		partialkey = base64.StdEncoding.EncodeToString([]byte(partialkeyByt))
 
-		// deBUG Log
-		r.Log("authtoken:" + authtoken)
-		r.Log("keylength:" + keylength)
-		r.Log("keyoffset:" + keyoffset)
-		r.Log("partialkeyByt:" + partialkeyByt)
-		r.Log("partialkey:" + partialkey)
-
 		return nil
 	})
 
@@ -574,7 +567,6 @@ func (r *Radiko) GetStreamURL(stationID string) (string, error) {
 
 }
 
-/* なぜか動いてくれない
 func (r *Radiko) hlsDownload(ctx context.Context, authtoken string, station string, sec string, output string) error {
 
 	streamURL, err := r.GetStreamURL(station)
@@ -610,67 +602,4 @@ func (r *Radiko) hlsDownload(ctx context.Context, authtoken string, station stri
 		return err
 	}
 
-}
-*/
-
-func (r *Radiko) hlsDownload(ctx context.Context, authtoken string, station string, sec string, output string) error {
-
-	streamURL, err := r.GetStreamURL(station)
-	hlsRecCmd := hlsFfmpegCmd(r.Converter, streamURL, authtoken, sec, output)
-	if err != nil {
-		return err
-	}
-
-	r.Log("hlsFfmpegCmd:", strings.Join(hlsRecCmd.Args, " "))
-
-	shfile, err := os.Create(filepath.Join(r.TempDir, "radikorec.sh"))
-	if err != nil {
-		return err
-	}
-	defer shfile.Close()
-
-	if _, err := shfile.WriteString(strings.Join(hlsRecCmd.Args, " ")); err != nil {
-		return err
-	}
-
-	sh, err := lookShellCommand()
-	hlsRecShell := exec.Command(
-		sh,
-		filepath.Join(r.TempDir, "radikorec.sh"),
-	)
-
-	var outbuff bytes.Buffer
-	var errbuff bytes.Buffer
-	hlsRecShell.Stdout = &outbuff
-	hlsRecShell.Stderr = &errbuff
-
-	errChan := make(chan error)
-	go func() {
-		if err := hlsRecShell.Run(); err != nil {
-			r.Log("CmdRun err:" + errbuff.String())
-			errChan <- err
-			return
-		}
-		errChan <- nil
-
-	}()
-
-	select {
-	case <-ctx.Done():
-		err := <-errChan
-		if err == nil {
-			err = ctx.Err()
-		}
-		return err
-	case err := <-errChan:
-		return err
-	}
-}
-
-func lookShellCommand() (string, error) {
-	cmd, err := exec.LookPath("sh")
-	if err == nil {
-		return cmd, nil
-	}
-	return "", fmt.Errorf("not found shell.")
 }

@@ -10,7 +10,7 @@ func lookConverterCommand() (string, error) {
 	if err == nil {
 		return cmd, nil
 	}
-	return "", fmt.Errorf("not found converter cmd, ffmpeg.")
+	return "", fmt.Errorf("not found converter cmd, %s", "ffmpeg.")
 }
 
 func hlsFfmpegCmd(ffmpeg, streamURL string, authtoken string, sec string, output string) *exec.Cmd {
@@ -18,7 +18,7 @@ func hlsFfmpegCmd(ffmpeg, streamURL string, authtoken string, sec string, output
 		ffmpeg,
 		"-loglevel", "error",
 		"-fflags", "+discardcorrupt",
-		"-headers", `"X-Radiko-Authtoken: `+authtoken+`"`,
+		"-headers", "X-Radiko-Authtoken:"+authtoken,
 		"-i", streamURL,
 		"-acodec", "copy",
 		"-vn",
