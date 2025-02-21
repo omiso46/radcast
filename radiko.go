@@ -59,6 +59,7 @@ type RadikoProg struct {
 
 type StreamURLItem struct {
 	AreaFree          bool   `xml:"areafree,attr"`
+	TimeFree          bool   `xml:"timefree,attr"`
 	MediaURLPath      string `xml:"media_url_path"`
 	PlaylistCreateURL string `xml:"playlist_create_url"`
 	PlaylistURLPath   string `xml:"playlist_url_path"`
@@ -556,7 +557,7 @@ func (r *Radiko) GetStreamURL(stationID string) (string, error) {
 
 	var streamURL string = ""
 	for _, i := range urlData.URL {
-		if !i.AreaFree {
+		if !i.AreaFree && !i.TimeFree {
 			streamURL = i.PlaylistCreateURL
 			break
 		}
