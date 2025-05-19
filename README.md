@@ -1,4 +1,4 @@
-## radcast
+# radcast
 ### radikoを録音し、podcast配信する
 
 radicastを少し、自分好みに改造しました
@@ -8,6 +8,10 @@ radicastを少し、自分好みに改造しました
 * 他
 
 ORIGINAL By https://github.com/soh335/radicast
+
+# ※重要なお知らせ
+Ver1.1.1を最後にメンテナンスは停止しています<br>
+この先は気が向けばメンテするかもしれないししないかもしれない…<br><br>
 
 ## 必要パッケージ
 * ffmpeg
