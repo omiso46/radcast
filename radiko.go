@@ -24,7 +24,7 @@ import (
 const (
 	radikoTimeLayout = "20060102150405"
 	authKey          = "bcd151073c03b352e1ef2fd66c32209da9ca0afa"
-	streamMultiURL   = "https://radiko.jp/v3/station/stream/aHybrid01/%s.xml"
+	streamMultiURL   = "https://radiko.jp/v3/station/stream/pc_html5/%s.xml"
 )
 
 type RadikoPrograms struct {
@@ -417,8 +417,8 @@ func (r *Radiko) auth(ctx context.Context) (string, string, error) {
 	// req.Header.Set("Accept", "*/*")
 	req.Header.Set("X-Radiko-App", "pc_html5")
 	req.Header.Set("X-Radiko-App-Version", "0.0.1")
-	req.Header.Set("X-Radiko-User", "dummy_user")
 	req.Header.Set("X-Radiko-Device", "pc")
+	req.Header.Set("X-Radiko-User", "dummy_user")
 
 	var authtoken string
 	var partialkey string
@@ -476,8 +476,8 @@ func (r *Radiko) auth(ctx context.Context) (string, string, error) {
 	// req.Header.Set("Accept", "*/*")
 	// req.Header.Set("X-Radiko-App", "pc_html5")
 	// req.Header.Set("X-Radiko-App-Version", "0.0.1")
-	req.Header.Set("X-Radiko-User", "dummy_user")
 	req.Header.Set("X-Radiko-Device", "pc")
+	req.Header.Set("X-Radiko-User", "dummy_user")
 	req.Header.Set("X-Radiko-Authtoken", authtoken)
 	req.Header.Set("X-Radiko-Partialkey", partialkey)
 
@@ -557,7 +557,7 @@ func (r *Radiko) GetStreamURL(stationID string) (string, error) {
 
 	var streamURL string = ""
 	for _, i := range urlData.URL {
-		if !i.AreaFree && !i.TimeFree {
+		if !i.AreaFree && !i.TimeFree && strings.Contains(i.PlaylistCreateURL, "_definst_") {
 			streamURL = i.PlaylistCreateURL
 			break
 		}
