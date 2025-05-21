@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -234,10 +235,10 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 	item.PubDate = PubDate{medStat.ModTime()}
 
 	item.ITunesAuthor = prog.Pfm
-	if utf8.RuneCountInString(prog.Info) == 0 {
-		item.Description = prog.Desc
+	if utf8.RuneCountInString(strings.TrimSpace(prog.Info)) == 0 {
+		item.Description = strings.TrimSpace(prog.Desc)
 	} else {
-		item.Description = prog.Info
+		item.Description = strings.TrimSpace(prog.Info)
 	}
 	item.Description += "<br><br>" + fmtDateTime(prog.Ft) + " - " + fmtDateTime(prog.To)
 	item.Description += "<br><br><center><img src=\"" + prog.Img + "\" width=\"80%\"></center>"
