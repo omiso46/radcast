@@ -232,7 +232,8 @@ func (s *Server) itemByDir(dir string, baseURL *url.URL) (*PodcastItem, error) {
 	item.Title = prog.Title
 	item.Link = prog.URL
 
-	tmpPubDate, _ := time.Parse("2006/01/02 15:04:05", fmtDateTime(prog.Ft))
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	tmpPubDate, _ := time.ParseInLocation("2006/01/02 15:04:05", fmtDateTime(prog.Ft), jst)
 	item.PubDate = PubDate{tmpPubDate}
 
 	item.ITunesAuthor = prog.Pfm
