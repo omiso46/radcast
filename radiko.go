@@ -25,6 +25,8 @@ const (
 	radikoTimeLayout = "20060102150405"
 	authKey          = "bcd151073c03b352e1ef2fd66c32209da9ca0afa"
 	streamMultiURL   = "https://radiko.jp/v3/station/stream/pc_html5/%s.xml"
+	streamDomain     = "radiko-cf.com"
+	playlistURL      = "%s?station_id=%s&l=15&lsid=&type=c"
 )
 
 type RadikoPrograms struct {
@@ -125,7 +127,7 @@ func (r *RadikoResult) Save(dir string) error {
 		return err
 	}
 
-	r.Log("saved path:", programDir)
+	r.Log("SavedPath ", programDir)
 
 	return nil
 }
@@ -244,7 +246,7 @@ func (r *Radiko) ConcatOutput(dir string, results []*RadikoResult) (*RadikoResul
 	}
 
 	cmd := exec.Command(r.Converter, args...)
-	r.Log("concat cmd:", strings.Join(cmd.Args, " "))
+	r.Log("ConcatCmd ", strings.Join(cmd.Args, " "))
 
 	if err := cmd.Run(); err != nil {
 		return nil, err
@@ -367,7 +369,7 @@ func (r *Radiko) record(ctx context.Context, output string, station string, buff
 
 	os.Mkdir(r.TempDir, 0777)
 
-	r.Log("Get Img:", prog.Img)
+	r.Log("GetImg ", prog.Img)
 	img, err := http.Get(prog.Img)
 	if err == nil {
 		defer img.Body.Close()
@@ -381,7 +383,7 @@ func (r *Radiko) record(ctx context.Context, output string, station string, buff
 		}
 	}
 
-	r.Log("start recording ", prog.Title)
+	r.Log("StartRecording ", prog.Title)
 	duration, err := prog.Duration()
 	if err != nil {
 		return nil, err
@@ -557,8 +559,8 @@ func (r *Radiko) GetStreamURL(stationID string) (string, error) {
 
 	var streamURL string = ""
 	for _, i := range urlData.URL {
-		if !i.AreaFree && !i.TimeFree && strings.Contains(i.PlaylistCreateURL, "_definst_") {
-			streamURL = i.PlaylistCreateURL
+		if !i.AreaFree && !i.TimeFree && strings.Contains(i.PlaylistCreateURL, streamDomain) {
+			streamURL = fmt.Sprintf(playlistURL, i.PlaylistCreateURL, stationID)
 			break
 		}
 
