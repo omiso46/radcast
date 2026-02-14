@@ -89,13 +89,16 @@ func (r *RadikoProg) Duration() (int64, error) {
 }
 
 type RadikoResult struct {
-	MedPath string
-	Prog    *RadikoProg
-	Station string
+	MedPath  string
+	Prog     *RadikoProg
+	Station  string
+	RecStart string
+	RecEnd   string
 }
 
 func (r *RadikoResult) Save(dir string) error {
-	programDir := filepath.Join(dir, fmt.Sprintf("%s_%s", r.Prog.Ft, r.Station))
+	//	programDir := filepath.Join(dir, fmt.Sprintf("%s_%s", r.Prog.Ft, r.Station))
+	programDir := filepath.Join(dir, fmt.Sprintf("%s_%s", r.RecStart, r.Station))
 	if err := os.MkdirAll(programDir, 0777); err != nil {
 		return err
 	}
@@ -253,9 +256,11 @@ func (r *Radiko) ConcatOutput(dir string, results []*RadikoResult) (*RadikoResul
 	}
 
 	return &RadikoResult{
-		MedPath: output,
-		Station: results[0].Station,
-		Prog:    results[0].Prog,
+		MedPath:  output,
+		Station:  results[0].Station,
+		Prog:     results[0].Prog,
+		RecStart: results[0].RecStart,
+		RecEnd:   results[0].RecEnd,
 	}, nil
 }
 
@@ -391,16 +396,20 @@ func (r *Radiko) record(ctx context.Context, output string, station string, buff
 
 	duration += buffer
 
+	recStart := time.Now().Format(radikoTimeLayout)
 	err = r.hlsDownload(ctx, authtoken, station, fmt.Sprint(duration), output)
+	recEnd := time.Now().Format(radikoTimeLayout)
 
 	if _, fileErr := os.Stat(output); fileErr != nil {
 		return nil, err
 	}
 
 	ret := &RadikoResult{
-		MedPath: output,
-		Station: station,
-		Prog:    prog,
+		MedPath:  output,
+		Station:  station,
+		Prog:     prog,
+		RecStart: recStart,
+		RecEnd:   recEnd,
 	}
 
 	return ret, err
